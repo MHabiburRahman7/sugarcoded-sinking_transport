@@ -6,10 +6,12 @@ public class shipBasicMove : MonoBehaviour
 {
     public PlayerCommand m_pCommand;
     public Transform front_trans;
-    public float accelSpeed, turningspeed;
+    public float accelSpeed, turningspeed, dive_surface_speed;
+    public bool isOnSurface = true;
 
     private bool isMovingForward = false;
     private bool isAccelerate = false;
+    public float diving_meter;
 
     private Rigidbody m_rigid;
     // Start is called before the first frame update
@@ -24,8 +26,9 @@ public class shipBasicMove : MonoBehaviour
     private void FixedUpdate()
     {
         checkHeading();
-        
-        if(m_pCommand.speed > 0)
+        checkDiveOrSurface();
+
+        if (m_pCommand.speed > 0)
         {
             Vector3 v3Force = accelSpeed * front_trans.transform.up;
             m_rigid.AddForce(v3Force);
@@ -51,15 +54,46 @@ public class shipBasicMove : MonoBehaviour
 
     }
 
+    void checkDiveOrSurface()
+    {
+        if(m_pCommand.isOnSurface != isOnSurface)
+        {
+            if (isOnSurface && diving_meter <= 100)
+            {
+                diving_meter++;
+            }
+            else if (diving_meter >= 100)
+            {
+                isOnSurface = false;
+                Debug.Log("ship is diving");
+            }
+                
+
+            if (!isOnSurface && diving_meter > -1)
+            {
+                diving_meter--;
+            }else if(diving_meter <= 0)
+            {
+                isOnSurface = true;
+                Debug.Log("ship is on surface");
+            }
+        }
+    }
+
     void checkHeading()
     {
         //if not moving dont rotate
         //if (Mathf.FloorToInt(gameObject.transform.localEulerAngles.z) != m_pCommand.direction && isAccelerate)
         if (Mathf.FloorToInt(gameObject.transform.localEulerAngles.z) != m_pCommand.direction)
         {
-            //decide to turn left or right --> still not working
-            float delta = Mathf.Abs(m_pCommand.direction - gameObject.transform.localEulerAngles.z);
-            if (delta <= 180)
+            //decide to turn left or right --> dont know how, but it is working ._.
+            float heading = gameObject.transform.localEulerAngles.z;
+            float newHead = m_pCommand.direction;
+
+            if (heading < newHead) heading += 360;
+            float left = heading - newHead;
+
+            if(left > 180)
             {
                 float tiltAroundZ = turningspeed;
                 transform.Rotate(0, 0, tiltAroundZ * Time.deltaTime, Space.World);
@@ -70,10 +104,5 @@ public class shipBasicMove : MonoBehaviour
                 transform.Rotate(0, 0, tiltAroundZ * Time.deltaTime, Space.World);
             }
         }
-
-        //this.transform.localEulerAngles = new Vector3(0, 0, angle);
-        //Debug.Log("this is heading: "+ gameObject.transform.localEulerAngles.z);
-        //Debug.Log("this is player heading: " + m_pCommand.direction);
-        //if ()
     }
 }

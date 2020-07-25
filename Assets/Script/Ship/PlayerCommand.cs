@@ -6,10 +6,12 @@ public class PlayerCommand : MonoBehaviour
 {
     public float speed;
     public float direction;
+    public bool isOnSurface;
 
     private void Update()
     {
-        //direction %= 360;
+        //direction should be 
+        direction %= 360;
     }
 
 }
