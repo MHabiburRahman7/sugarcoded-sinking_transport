@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class shipBasicMove : MonoBehaviour
 {
+    public Slider diving_meter_ui;
     public PlayerCommand m_pCommand;
     public Transform front_trans;
     public float accelSpeed, turningspeed, dive_surface_speed;
@@ -58,12 +60,15 @@ public class shipBasicMove : MonoBehaviour
     {
         if(m_pCommand.isOnSurface != isOnSurface)
         {
+            diving_meter_ui.gameObject.SetActive(true);
             if (isOnSurface && diving_meter <= 100)
             {
                 diving_meter++;
+                diving_meter_ui.value = diving_meter;
             }
             else if (diving_meter >= 100)
             {
+                diving_meter_ui.gameObject.SetActive(false);
                 isOnSurface = false;
                 Debug.Log("ship is diving");
             }
@@ -72,8 +77,11 @@ public class shipBasicMove : MonoBehaviour
             if (!isOnSurface && diving_meter > -1)
             {
                 diving_meter--;
-            }else if(diving_meter <= 0)
+                diving_meter_ui.value = diving_meter;
+            }
+            else if(diving_meter <= 0)
             {
+                diving_meter_ui.gameObject.SetActive(false);
                 isOnSurface = true;
                 Debug.Log("ship is on surface");
             }
@@ -104,5 +112,10 @@ public class shipBasicMove : MonoBehaviour
                 transform.Rotate(0, 0, tiltAroundZ * Time.deltaTime, Space.World);
             }
         }
+    }
+
+    void ShowMeter()
+    {
+
     }
 }
